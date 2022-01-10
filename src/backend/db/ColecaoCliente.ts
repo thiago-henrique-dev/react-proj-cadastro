@@ -20,7 +20,12 @@ export default class ColecaoCliente implements ClienteRepositorio{
 
     async salvar(cliente: Cliente): Promise<Cliente> {
         if(cliente?.id) {
-            this.colecao().doc(cliente.id).set(cliente)
+           await this.colecao().doc(cliente.id).set(cliente)
+           return cliente
+        } else {
+            const docRef = await this.colecao().add(cliente)
+            const doc = await docRef.get()
+            return doc.data()
         }
         return null
     }
@@ -30,7 +35,8 @@ export default class ColecaoCliente implements ClienteRepositorio{
     }
 
     async obterTodos(): Promise<Cliente[]> {
-        return null
+        const query = await this.colecao().get()
+        return query.docs.map(doc => doc.data()) ?? []
     }
 
     private colecao() {
@@ -43,4 +49,3 @@ export default class ColecaoCliente implements ClienteRepositorio{
 
 
 
-}
